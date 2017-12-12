@@ -1,0 +1,15 @@
+- hosts: lxd
+  remote_user: root
+  connection: ssh
+  gather_facts: yes
+  tasks:
+  - name: Create container
+    command: 'lxc launch local:toca-image {{hostname}}'
+  - name: Pulling file from Jenkins
+    command: 'lxc file pull jenkins/tmp/config.json /tmp/config.json'
+  - name: Pushing file to container
+    command: 'lxc file push /tmp/config.json {{hostname}}/home/tocabot/config.json'
+  - name: Ownership of config.json
+    command: 'lxc exec {{hostname}} -- chown -R tocabot:tocabot /home/tocabot/config.json'
+  - name: VNC setup
+    command: 'lxc exec {{hostname}} -- su tocabot -c "vncserver -geometry 1920x1080"'
